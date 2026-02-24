@@ -1,0 +1,100 @@
+---
+description: TanStack Query, Axios, and data fetching patterns.
+globs: "hooks/**/*.ts, services/**/*.ts, lib/api*.ts"
+alwaysApply: false
+---
+
+# Data Fetching Rules (TanStack Query + Axios)
+
+## Axios Setup
+- Create a single Axios instance in `lib/api.ts` with base configuration:
+```typescript
+import axios from "axios";
+
+export const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  timeout: 10000,
+  headers: { "Content-Type": "application/json" },
+});
+
+// Add interceptors for auth tokens and error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Handle 401, 403, 500 etc.
+    return Promise.reject(error);
+  }
+);
+```
+- Never use raw `fetch()` or `axios` directly in components — always go through service functions.
+
+## Service Layer
+- Create service files in `services/` directory, one per domain:
+```typescript
+// services/users.service.ts
+import { api } from "@/lib/api";
+import { User, CreateUserData } from "@/types";
+
+export const usersService = {
+  getAll: () => api.get<User[]>("/users").then((res) => res.data),
+  getById: (id: string) => api.get<User>(`/users/${id}`).then((res) => res.data),
+  create: (data: CreateUserData) => api.post<User>("/users", data).then((res) => res.data),
+  update: (id: string, data: Partial<User>) => api.patch<User>(`/users/${id}`, data).then((res) => res.data),
+  delete: (id: string) => api.delete(`/users/${id}`),
+};
+```
+
+## TanStack Query
+- Create custom hooks in `hooks/` that wrap `useQuery` and `useMutation`:
+```typescript
+// hooks/use-users.ts
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { usersService } from "@/services/users.service";
+
+export const userKeys = {
+  all: ["users"] as const,
+  detail: (id: string) => ["users", id] as const,
+};
+
+export function useUsers() {
+  return useQuery({
+    queryKey: userKeys.all,
+    queryFn: usersService.getAll,
+  });
+}
+
+export function useUser(id: string) {
+  return useQuery({
+    queryKey: userKeys.detail(id),
+    queryFn: () => usersService.getById(id),
+    enabled: !!id,
+  });
+}
+
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: usersService.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.all });
+    },
+  });
+}
+```
+
+## Query Key Factory
+- Always use a query key factory (like `userKeys` above) to keep keys organized.
+- Use the pattern: `[entity]` → `[entity, id]` → `[entity, id, sub-resource]`.
+
+## Rules
+- Never call API functions directly in components — always use hooks.
+- Use `enabled` option to conditionally run queries.
+- Use `staleTime` and `gcTime` to control cache behavior.
+- Use `useMutation` with `onSuccess` to invalidate related queries after mutations.
+- Handle loading, error, and empty states in every component that uses queries.
+- Use `select` option to transform data at the query level, not in the component.
+
+## Date Handling
+- Use `date-fns` for all date formatting and manipulation.
+- Import only the functions you need (tree-shakable).
+- Use `format`, `parseISO`, `formatDistance`, `isAfter`, `isBefore` as needed.

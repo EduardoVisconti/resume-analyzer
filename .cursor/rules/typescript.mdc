@@ -1,0 +1,52 @@
+---
+description: TypeScript coding standards, type safety, and patterns.
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# TypeScript Rules
+
+## General
+- Use TypeScript for ALL files. No `.js` or `.jsx`.
+- Enable strict mode in `tsconfig.json`.
+- Prefer `interface` over `type` for object shapes (interfaces are extendable).
+- Use `type` for unions, intersections, and utility types.
+- Avoid `any`. Use `unknown` when the type is truly unknown, then narrow it.
+- Avoid `enums`. Use `as const` objects or union types instead:
+```typescript
+// Instead of enum
+const STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+} as const;
+
+type Status = (typeof STATUS)[keyof typeof STATUS];
+```
+
+## Functions
+- Always declare explicit return types for exported functions.
+- Use arrow functions for callbacks and inline functions.
+- Use `function` keyword for top-level named functions (hoisting benefit).
+- Prefer optional parameters over `undefined` union types.
+
+## Type Patterns
+- Use generics to create reusable, type-safe utilities.
+- Use discriminated unions for state management:
+```typescript
+type AsyncState<T> =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "success"; data: T }
+  | { status: "error"; error: string };
+```
+- Use `Pick`, `Omit`, `Partial`, `Required` to derive types from existing ones.
+- Never duplicate type definitions — derive from a single source of truth.
+
+## Imports
+- Use absolute imports with `@/` prefix (configured in tsconfig.json paths).
+- Order imports: React → third-party → local (components → hooks → lib → types).
+- Use named exports, not default exports (better refactoring support).
+
+## Null Handling
+- Prefer optional chaining (`?.`) and nullish coalescing (`??`).
+- Avoid non-null assertions (`!`) unless you are 100% certain.

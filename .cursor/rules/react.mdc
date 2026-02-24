@@ -1,0 +1,67 @@
+---
+description: React component patterns, hooks, and performance best practices.
+globs: "**/*.tsx"
+alwaysApply: false
+---
+
+# React Rules
+
+## Components
+- Use functional components only. No class components.
+- One exported component per file. Small helper components are okay in the same file.
+- Favor named exports over default exports.
+- Keep components under 150 lines. If larger, break into sub-components.
+- Use composition over props drilling. Prefer `children` and render props patterns.
+
+## Props
+- Define props with TypeScript interfaces.
+- Destructure props in the function signature.
+- Use sensible defaults for optional props.
+```typescript
+interface ButtonProps {
+  label: string;
+  variant?: "primary" | "secondary";
+  isLoading?: boolean;
+  onClick: () => void;
+}
+
+export function Button({ label, variant = "primary", isLoading = false, onClick }: ButtonProps) {
+  // ...
+}
+```
+
+## Hooks
+- Follow the Rules of Hooks (top level, not inside conditions/loops).
+- Extract reusable logic into custom hooks in the `hooks/` directory.
+- Use `useCallback` for functions passed to child components or used in dependency arrays.
+- Use `useMemo` only when there's a proven performance benefit — don't over-optimize.
+
+## State Management
+- Use `useState` for simple local state.
+- Use `useReducer` for complex local state with multiple related values.
+- Use Zustand for global client state (keep stores small and focused).
+- Use TanStack Query for server state (API data).
+- Never store server data in Zustand — let TanStack Query manage it.
+
+## Performance
+- Wrap expensive child components with `React.memo` only when needed.
+- Use dynamic `import()` with `next/dynamic` for heavy components.
+- Avoid creating objects/arrays inside JSX (causes re-renders):
+```typescript
+// Bad
+<Component style={{ color: "red" }} />
+
+// Good
+const style = { color: "red" };
+<Component style={style} />
+```
+
+## Event Handlers
+- Name handlers with `handle` prefix: `handleClick`, `handleSubmit`, `handleChange`.
+- Props for handlers use `on` prefix: `onClick`, `onSubmit`, `onChange`.
+
+## Accessibility
+- Use semantic HTML: `<button>`, `<nav>`, `<main>`, `<section>`, `<article>`.
+- Always add `alt` text to images.
+- Use `aria-label` for icon-only buttons.
+- Ensure keyboard navigation works (focus management, tab order).

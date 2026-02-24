@@ -1,0 +1,55 @@
+---
+description: React Hook Form + Zod form handling and validation patterns.
+globs: "**/*.tsx, schemas/**/*.ts"
+alwaysApply: false
+---
+
+# Form Rules (React Hook Form + Zod)
+
+## Zod Schemas
+- Define all validation schemas in the `schemas/` directory.
+- Name schema files after the feature: `auth.schema.ts`, `profile.schema.ts`.
+- Export both the schema and the inferred type:
+```typescript
+import { z } from "zod";
+
+export const loginSchema = z.object({
+  email: z.string().email("Enter a valid email"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+export type LoginFormData = z.infer<typeof loginSchema>;
+```
+- Use descriptive error messages in Portuguese or English (be consistent).
+- Compose schemas with `.extend()`, `.merge()`, `.pick()`, `.omit()`.
+- Use `.refine()` or `.superRefine()` for cross-field validation.
+
+## React Hook Form
+- Always use with `zodResolver` for validation:
+```typescript
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, LoginFormData } from "@/schemas/auth.schema";
+
+const form = useForm<LoginFormData>({
+  resolver: zodResolver(loginSchema),
+  defaultValues: {
+    email: "",
+    password: "",
+  },
+});
+```
+- Always provide `defaultValues` for every field.
+- Use `form.handleSubmit()` for form submission — never handle submit manually.
+- Use `form.formState.errors` to display validation errors.
+- Use `form.formState.isSubmitting` to disable the submit button during submission.
+
+## Form Components
+- Use shadcn/ui `<Form>`, `<FormField>`, `<FormItem>`, `<FormLabel>`, `<FormMessage>` when available.
+- Extract complex forms into their own component files.
+- Keep form submission logic in a separate handler function, not inline.
+
+## Patterns
+- For multi-step forms, use a single schema with `.pick()` per step.
+- For dynamic fields, use `useFieldArray()`.
+- Always handle both client and server validation errors.

@@ -1,0 +1,51 @@
+---
+description: Git workflow, commit messages, and branch naming conventions.
+globs:
+alwaysApply: false
+---
+
+# Git Rules
+
+## Commit Messages
+Follow Conventional Commits format:
+
+```
+type(scope): description
+```
+
+Types:
+- `feat` — new feature
+- `fix` — bug fix
+- `refactor` — code change that neither fixes a bug nor adds a feature
+- `style` — formatting, missing semicolons, etc. (no code change)
+- `docs` — documentation only
+- `chore` — build process, dependencies, config
+- `test` — adding or updating tests
+- `perf` — performance improvement
+
+Examples:
+```
+feat(auth): add login form with validation
+fix(dashboard): resolve chart rendering on mobile
+refactor(api): extract shared error handler
+chore: update dependencies
+docs: add API documentation to README
+```
+
+Rules:
+- Use lowercase for the entire message.
+- Keep the subject line under 72 characters.
+- Use imperative mood: "add feature" not "added feature".
+- Scope is optional but recommended for clarity.
+- Write in English.
+
+## Branch Naming
+```
+type/short-description
+```
+Examples: `feat/user-auth`, `fix/mobile-nav`, `refactor/api-client`
+
+## Workflow
+- Commit frequently — small, focused commits are better than large ones.
+- Each commit should leave the code in a working state.
+- Don't mix unrelated changes in one commit.

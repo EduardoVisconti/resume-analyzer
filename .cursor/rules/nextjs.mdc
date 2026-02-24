@@ -1,0 +1,46 @@
+---
+description: Next.js App Router best practices for pages, layouts, API routes, and server/client components.
+globs: app/**/*.{ts,tsx}, middleware.ts
+alwaysApply: false
+---
+
+# Next.js Rules
+
+## App Router
+- Use the App Router (`app/` directory), not the Pages Router.
+- Use Server Components by default. Only add `"use client"` when the component needs interactivity, hooks, or browser APIs.
+- Colocate related files: `page.tsx`, `loading.tsx`, `error.tsx`, `layout.tsx` within route folders.
+
+## Server vs Client Components
+- Server Components: data fetching, database access, heavy computation, sensitive logic.
+- Client Components: user interactions (onClick, onChange), React hooks (useState, useEffect), browser APIs.
+- Keep Client Components as small as possible — extract interactive parts and keep the parent as a Server Component.
+- Never import Server Components inside Client Components. Pass them as `children` instead.
+
+## Data Fetching
+- Fetch data in Server Components using `async/await` directly.
+- Use `loading.tsx` for Suspense-based loading states.
+- Use `error.tsx` for error boundaries per route segment.
+- For client-side data, use TanStack Query (see data-fetching rules).
+
+## API Routes
+- Define API routes in `app/api/[route]/route.ts`.
+- Always validate request body with Zod before processing.
+- Return proper HTTP status codes and consistent error format:
+```typescript
+return NextResponse.json({ error: "Description" }, { status: 400 });
+```
+- Use `NextRequest` and `NextResponse` from `next/server`.
+
+## Images & Fonts
+- Use `next/image` for all images (automatic optimization).
+- Use `next/font` for fonts (no layout shift).
+
+## Metadata
+- Use the `metadata` export or `generateMetadata` function for SEO.
+- Always include title, description, and Open Graph tags on public pages.
+
+## Environment Variables
+- Server-only variables: `VARIABLE_NAME` (no prefix).
+- Client-exposed variables: `NEXT_PUBLIC_VARIABLE_NAME`.
+- Never expose secrets to the client.

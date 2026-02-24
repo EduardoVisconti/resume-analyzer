@@ -1,0 +1,59 @@
+---
+description: Core development rules. Always active for every file and interaction.
+globs:
+alwaysApply: true
+---
+
+# Core Rules
+
+## Behavior
+- Before creating new files or making significant changes, explain the plan and ask for confirmation.
+- Before writing code, briefly state the approach.
+- If something is unclear, ask — don't assume.
+- When fixing bugs, explain the root cause before applying the fix.
+- Keep changes small and focused. Avoid large rewrites unless explicitly requested.
+
+## Code Standards
+- Write clean, readable, production-ready TypeScript code.
+- Use functional and declarative patterns. No classes unless strictly necessary.
+- Use early returns to reduce nesting.
+- Handle errors with try/catch and meaningful error messages.
+- Never leave console.log or TODO comments in final code.
+- Add comments only for non-obvious logic.
+
+## Naming Conventions
+- Directories: lowercase with dashes (e.g., `components/auth-wizard`).
+- Components: PascalCase (e.g., `UserProfile.tsx`).
+- Hooks: camelCase with `use` prefix (e.g., `useAuth.ts`).
+- Utilities/helpers: camelCase (e.g., `formatDate.ts`).
+- Types/Interfaces: PascalCase (e.g., `UserProfile`, `ApiResponse`).
+- Constants: UPPER_SNAKE_CASE for true constants, camelCase for config objects.
+- Boolean variables: use `is`, `has`, `should` prefixes (e.g., `isLoading`, `hasError`).
+
+## File Structure (per component file)
+1. Imports
+2. Types/Interfaces
+3. Constants
+4. Exported component
+5. Sub-components (if small and tightly coupled)
+6. Helper functions
+
+## Project Architecture
+```
+app/                    # Next.js App Router pages and layouts
+├── (routes)/           # Route groups
+├── api/                # API routes
+├── layout.tsx          # Root layout
+└── page.tsx            # Home page
+components/
+├── ui/                 # shadcn/ui primitives (don't modify)
+├── forms/              # Form-specific components
+├── layout/             # Header, Footer, Sidebar, etc.
+└── [feature]/          # Feature-specific components
+hooks/                  # Custom React hooks
+lib/                    # Utilities, API clients, helpers
+types/                  # Shared TypeScript types
+services/               # API service functions
+stores/                 # Zustand stores
+schemas/                # Zod validation schemas
+```
